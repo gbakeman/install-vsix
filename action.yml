@@ -46,7 +46,7 @@ runs:
         Write-Host "VSInstallDir is $($VSInstallDir)"
         Write-Host "VsixLocation is $($VsixLocation)"
         Write-Host "Installing ${{ inputs.packagename }}..."
-        Start-Process -Filepath "$($VSInstallDir)\VSIXInstaller" -ArgumentList "/q /a $($VsixLocation)" -Wait
+        Start-Process -Filepath "$($VSInstallDir)\VSIXInstaller" -ArgumentList "/q /a $($VsixLocation)" -Wait -PassThru
         
         Write-Host "Cleanup..."
         rm $VsixLocation
