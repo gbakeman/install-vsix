@@ -28,7 +28,7 @@ jobs:
       run: vswhere.exe
 
     - name: Setup nuget
-      uses: nuget/setup-nuget@v1
+      uses: nuget/setup-nuget@v2
       
     - uses: ./
       name: Test installing nanoFramework extension
