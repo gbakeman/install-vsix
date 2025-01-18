@@ -30,7 +30,7 @@ jobs:
     - name: Setup nuget
       uses: nuget/setup-nuget@v1
       
-    - uses: ${{ github.repository_owner }}/install-vsix@${{ github.base_ref }}
+    - uses: ./action.yml
       with: 
         packagename: 'nanoframework.nanoFramework-VS2019-Extension'
           
