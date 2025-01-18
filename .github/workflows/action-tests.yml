@@ -30,7 +30,7 @@ jobs:
     - name: Setup nuget
       uses: nuget/setup-nuget@v1
       
-    - uses: ./action.yml
+    - uses: ./
       with: 
         packagename: 'nanoframework.nanoFramework-VS2019-Extension'
           
