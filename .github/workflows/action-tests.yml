@@ -1,9 +1,7 @@
-name: Example VSIX Build
+name: Test install-vsix action
 
 on:
   push:
-    branches:
-    - main
     paths: 
       - '**'
       - '!.editorconfig'
@@ -15,8 +13,8 @@ env:
   ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
   
 jobs: 
-  Build:
-    name: Example Action  
+  test-install-vsix:
+    name: Test local install-vsix Package
     runs-on: windows-latest
     
     steps:
@@ -32,7 +30,7 @@ jobs:
     - name: Setup nuget
       uses: nuget/setup-nuget@v1
       
-    - uses: microcompiler/install-vsix@main
+    - uses: ./
+      name: Test installing nanoFramework extension
       with: 
         packagename: 'nanoframework.nanoFramework-VS2019-Extension'
-          
