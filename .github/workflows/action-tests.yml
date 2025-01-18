@@ -31,7 +31,6 @@ jobs:
       uses: nuget/setup-nuget@v1
       
     - uses: ./
-      name: Run action at top of repository
+      name: Test installing nanoFramework extension
       with: 
         packagename: 'nanoframework.nanoFramework-VS2019-Extension'
-          
