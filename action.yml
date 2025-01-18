@@ -9,4 +9,4 @@ runs:
   steps:
     - id: vsix
       shell: pwsh
-      run: .\vsix-install-package.ps1 ${{ inputs.packagename }}
+      run: .\install-vsix.ps1 ${{ inputs.packagename }}
