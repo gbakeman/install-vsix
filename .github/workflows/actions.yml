@@ -2,8 +2,6 @@ name: Example VSIX Build
 
 on:
   push:
-    branches:
-    - main
     paths: 
       - '**'
       - '!.editorconfig'
@@ -32,7 +30,7 @@ jobs:
     - name: Setup nuget
       uses: nuget/setup-nuget@v1
       
-    - uses: microcompiler/install-vsix@main
+    - uses: ${{ github.repository_owner }}/install-vsix@${{ github.base_ref }}
       with: 
         packagename: 'nanoframework.nanoFramework-VS2019-Extension'
           
