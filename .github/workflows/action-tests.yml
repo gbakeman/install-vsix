@@ -1,4 +1,4 @@
-name: Example VSIX Build
+name: Test install-vsix action
 
 on:
   push:
@@ -13,8 +13,8 @@ env:
   ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
   
 jobs: 
-  Build:
-    name: Example Action  
+  test-install-vsix:
+    name: Test local install-vsix Package
     runs-on: windows-latest
     
     steps:
