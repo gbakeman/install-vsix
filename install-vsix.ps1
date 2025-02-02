@@ -9,11 +9,15 @@ param (
     $PackageName
 )
 
+$ErrorActionPreference = "Stop"
+
 $baseProtocol = "https:"
 $baseHostName = "marketplace.visualstudio.com"
 
 $Uri = "$($baseProtocol)//$($baseHostName)/items?itemName=$PackageName"
-$VsixLocation = "$($env:Temp)\$([guid]::NewGuid()).vsix"
+$TempGuid = [guid]::NewGuid()
+$VsixDir = $env:TEMP
+$VsixLocation = "$($VsixDir)\$($TempGuid).vsix"
 
 $VSInstallDir = "C:\Program Files (x86)\Microsoft Visual Studio\Installer\resources\app\ServiceHub\Services\Microsoft.VisualStudio.Setup.Service"
 
