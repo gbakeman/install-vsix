@@ -48,7 +48,7 @@ if (-Not (Test-Path $VsixLocation)) {
 Write-Host "VSInstallDir is $($VSInstallDir)"
 Write-Host "VsixLocation is $($VsixLocation)"
 Write-Host "Installing $PackageName..."
-Start-Process -Filepath "$($VSInstallDir)\VSIXInstaller" -ArgumentList "/q /a $($VsixLocation)" -Wait -PassThru
+$proc = Start-Process -Filepath "$($VSInstallDir)\VSIXInstaller" -ArgumentList "/q $($VsixLocation)" -PassThru
 
 Write-Host "Cleanup..."
 rm $VsixLocation
