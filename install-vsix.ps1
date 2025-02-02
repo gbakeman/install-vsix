@@ -1,9 +1,11 @@
-Param
-(
-    [Parameter(Mandatory=$true,
-                ValueFromRemainingArguments=$true)]
+param (
+    [Parameter()]
+    $MonitorProcessInfo = $false,
+    [Parameter()]
+    $OutputDetailedInfo = $false,
+    [Parameter(Mandatory = $true,
+        ValueFromRemainingArguments = $true)]
     [ValidateNotNullOrEmpty()]
-    [String]
     $PackageName
 )
 
