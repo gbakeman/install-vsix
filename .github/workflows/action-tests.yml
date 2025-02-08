@@ -13,10 +13,9 @@ env:
   ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
   
 jobs: 
-  test-install-vsix:
-    name: Test local install-vsix Package
+  test-install-nanoFramework-extension:
+    name: Test installing the nanoFramework extension
     runs-on: windows-latest
-    
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -35,7 +34,23 @@ jobs:
       with: 
         packageName: 'nanoframework.nanoFramework-VS2019-Extension'
 
+  test-install-mat-extension:
+    name: Test installation of the MAT framework extension
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2.0.0
+
     - name: Test installing multilingual app toolkit extension
+      id: test-vsix
       uses: ./
       with:
         packageName: 'dts-publisher.mat2022'
+        monitorProcess: true
+
+    - name: Confirm output of logs directory match string
+      run: |
+        Write-Host "GitHub action returned output: ${{ steps.test-vsix.outputs.logsPathMatch }}"
