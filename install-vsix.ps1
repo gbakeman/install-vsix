@@ -18,6 +18,7 @@ $Uri = "$($baseProtocol)//$($baseHostName)/items?itemName=$PackageName"
 $TempGuid = [guid]::NewGuid()
 $VsixDir = $env:TEMP
 $VsixLocation = "$($VsixDir)\$($TempGuid).vsix"
+Write-Output "logs-path-match=$($VsixDir)\dd_*.log" >> $env:GTHUB_OUTPUT
 
 $VSInstallDir = "C:\Program Files (x86)\Microsoft Visual Studio\Installer\resources\app\ServiceHub\Services\Microsoft.VisualStudio.Setup.Service"
 

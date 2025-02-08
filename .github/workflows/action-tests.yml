@@ -33,9 +33,9 @@ jobs:
     - uses: ./
       name: Test installing nanoFramework extension
       with: 
-        packagename: 'nanoframework.nanoFramework-VS2019-Extension'
+        packageName: 'nanoframework.nanoFramework-VS2019-Extension'
 
     - name: Test installing multilingual app toolkit extension
       uses: ./
       with:
-        packagename: 'dts-publisher.mat2022'
+        packageName: 'dts-publisher.mat2022'

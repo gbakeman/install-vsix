@@ -1,12 +1,26 @@
 name: 'Install a Visual Studio Extension' 
 description: 'Download the latest extension version and install in Visual Studio'
 inputs:
-  packagename: 
+  packageName: 
     description:  'Package names from the Visual Studio Marketplace URL itemName parameter'
     required: true
+  monitorProcess:
+    description:  'Regularly print out basic information of the extension Process object (CPU, etc.)'
+    default: false
+  verboseLogOutput:
+    description:  'Print out to console much more logged information than normal.'
+    default: false
+outputs:
+  logsPathMatch:
+    description: 'Path on the runner, with wildcards, to match all associated log files.'
+    value: ${{ steps.vsix.outputs.logs-path-match }}
 runs:
   using: "composite"
   steps:
     - id: vsix
       shell: pwsh
-      run: .\install-vsix.ps1 ${{ inputs.packagename }}
+      run: |
+        .\install-vsix.ps1 \
+          -MonitorProcessInfo ${{ inputs.monitorProcess }} \
+          -OutputDetailedInfo ${{ inputs.verboseLogOutput }} \
+          -PackageName ${{ inputs.packageName }}
