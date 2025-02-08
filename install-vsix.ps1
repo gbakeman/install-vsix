@@ -1,7 +1,9 @@
 param (
     [Parameter()]
+    [Switch]
     $MonitorProcessInfo = $false,
     [Parameter()]
+    [Switch]
     $OutputDetailedInfo = $false,
     [Parameter(Mandatory = $true,
         ValueFromRemainingArguments = $true)]
@@ -16,10 +18,8 @@ $baseHostName = "marketplace.visualstudio.com"
 
 $Uri = "$($baseProtocol)//$($baseHostName)/items?itemName=$PackageName"
 $TempGuid = [guid]::NewGuid()
-$VsixDir = $env:TEMP
+$VsixDir = $env:TEMP # Always do our work in temp dir. Also where logs are located.
 $VsixLocation = "$($VsixDir)\$($TempGuid).vsix"
-Write-Output "logs-path-match=$($VsixDir)\dd_*.log" >> $env:GTHUB_OUTPUT
-
 $VSInstallDir = "C:\Program Files (x86)\Microsoft Visual Studio\Installer\resources\app\ServiceHub\Services\Microsoft.VisualStudio.Setup.Service"
 
 if (-Not $VSInstallDir) {
@@ -50,33 +50,31 @@ Write-Host "VSInstallDir is $($VSInstallDir)"
 Write-Host "VsixLocation is $($VsixLocation)"
 
 Write-Host "Initializing log file monitoring..."
-Install-Module -Name FSWatcherEngineEvent
+# https://docs.github.com/en/actions/use-cases-and-examples/building-and-testing/building-and-testing-powershell#installing-dependencies
+Install-Module FSWatcherEngineEvent
 # Date format is yyyyMMddHHmmss
 $LogFileNameIncludes = @( "dd_VSIXInstaller_*" )
 if ($OutputDetailedInfo) { $LogFileNameIncludes += "dd_setup*.log" }
 else { $LogFileNameIncludes += "dd_setup_*_errors.log" }
 $LogFileReaders = @{}
 
-function FSWatcherEventAction($FSWEvent) {
-    $FileName = $FSWEvent.MessageData.Name
-    Write-Debug "File event: $($FileName)"
+Write-Host "Connecting file monitor event handler..."
+# https://github.com/wgross/fswatcher-engine-event/blob/main/README.md
+$WatcherJob = New-FileSystemWatcher -SourceIdentifier "VSIXLogFileMonitor" -Path $env:TEMP -Filter "dd_*.log" -Action {
+    $FileName = $event.MessageData.Name
+    Write-Host "File event: $([System.IO.WatcherChangeTypes]($event.MessageData.ChangeType).ToString()) $($FileName)"
 
     foreach ($item In $LogFileNameIncludes) {
         if (($FileName -like $item) -and (!$LogFileReaders.ContainsKey($FileName))) {
-            Write-Debug "Returning new matching and unopened file."
             return $FileName
         }
     }
-}
-
-Write-Host "Connecting file monitor event handler..."
-# https://github.com/wgross/fswatcher-engine-event/blob/main/README.md
-$WatcherJob = New-FileSystemWatcher -SourceIdentifier "VSIXLogFileMonitor" -Path $VsixDir -Filter "dd_*.log" -Action { FSWatcherEventAction $event }
+ }
 
 Write-Host "Installing $PackageName..."
 $proc = Start-Process -Filepath "$($VSInstallDir)\VSIXInstaller" -ArgumentList "/q $($VsixLocation)" -PassThru
 
-while ($proc.HasExited -eq $false) {
+while (!$proc.HasExited) {
     # Check if the watcher job has encountered an error and pass it along
     if ($WatcherJob.JobStateInfo.State.HasFlag([System.Management.Automation.JobState]::Failed)) {
         throw $WatcherJob.Error[0].Exception
@@ -85,7 +83,7 @@ while ($proc.HasExited -eq $false) {
     # Check if new file to watch was returned
     $watcherJobOut = Receive-Job -Job $WatcherJob
     if ($watcherJobOut) {
-        Write-Debug "Received output from watcher job!" ; $watcherJobOut
+        Write-Host "Received output from watcher job!" ; $watcherJobOut
         # Sometimes an array might be returned (works for single objects too)
         $watcherJobOut | ForEach-Object {
             if (!($LogFileReaders.ContainsKey($_))) {
@@ -109,7 +107,7 @@ while ($proc.HasExited -eq $false) {
 
     if ($MonitorProcessInfo) { Write-Host ($proc | Format-Table | Out-String) }
 
-    Start-Sleep 1
+    Start-Sleep 3
 }
 
 Write-Host "Process exited."
@@ -131,9 +129,9 @@ else {
     Write-Host "Installation of $PackageName complete!"
 }
 
-if ($env:GITHUB_WORKSPACE) {
+# if ($env:GITHUB_WORKSPACE) {
     exit $proc.ExitCode
-}
-else {
-    Write-Host "Simulated exit code $($proc.ExitCode)"
-}
+# }
+# else {
+#     Write-Host "Simulated exit code $($proc.ExitCode)"
+# }

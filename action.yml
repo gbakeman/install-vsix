@@ -13,14 +13,27 @@ inputs:
 outputs:
   logsPathMatch:
     description: 'Path on the runner, with wildcards, to match all associated log files.'
-    value: ${{ steps.vsix.outputs.logs-path-match }}
+    value: ${{ steps.gen-log-path.outputs.path }}
 runs:
   using: "composite"
   steps:
     - id: vsix
       shell: pwsh
       run: |
-        .\install-vsix.ps1 \
-          -MonitorProcessInfo ${{ inputs.monitorProcess }} \
-          -OutputDetailedInfo ${{ inputs.verboseLogOutput }} \
+        Set-PSRepository PSGallery -InstallationPolicy Trusted # Prepare environment for installing a package
+        .\install-vsix.ps1 -Debug `
+          ${{ (inputs.monitorProcess == true) && '-MonitorProcessInfo' || '' }} `
+          ${{ (inputs.verboseLogOutput == true) && '-OutputDetailedInfo' || '' }} `
           -PackageName ${{ inputs.packageName }}
+    - id: gen-log-path
+      if: always()
+      shell: pwsh
+      run: |
+        [System.Environment]::SetEnvironmentVariable('GITHUB_OUTPUT','path=$($env:TEMP)\dd_*.log')
+        Write-Host "Updated output to $($env:GITHUB_OUTPUT)"
+    - if: always()
+      name: Test gen log path
+      shell: pwsh
+      env:
+        PATH: '${{ steps.gen-log-path.outputs.path }}'
+      run: echo $env:PATH

@@ -16,7 +16,7 @@
             "type": "PowerShell",
             "request": "launch",
             "script": "${file}",
-            "args": ["-PackageName 'dts-publisher.mat2022'", "-Debug"] //"-OutputDetailedInfo True",
+            "args": ["-MonitorProcessInfo $false", "-PackageName 'dts-publisher.mat2022'", "-Debug"] //"-OutputDetailedInfo True",
         }
     ]
 }
