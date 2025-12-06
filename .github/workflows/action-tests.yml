@@ -9,28 +9,69 @@ on:
       - '!.gitignore'
       - '!*.md'
       - '!LICENSE'
+  workflow_dispatch:
+
 env:
   ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
   
 jobs: 
-  test-install-vsix:
-    name: Test local install-vsix Package
+  nanoFramework:
+    name: Install nanoFramework extension
     runs-on: windows-latest
-    
     steps:
     - name: Checkout
       uses: actions/checkout@v4
 
     - name: Setup msbuild
       uses: microsoft/setup-msbuild@v2.0.0
-       
-    - name: Show Visual Studio locator information
-      run: vswhere.exe
 
-    - name: Setup nuget
-      uses: nuget/setup-nuget@v2
+    # - name: Setup nuget
+    #   uses: nuget/setup-nuget@v2
       
     - uses: ./
-      name: Test installing nanoFramework extension
+      id: install-vsix
       with: 
-        packagename: 'nanoframework.nanoFramework-VS2019-Extension'
+        packageName: 'nanoframework.nanoFramework-VS2019-Extension'
+        verboseLogOutput: true
+        monitorProcess: true
+
+    - name: Test output
+      if: always()
+      run: |
+        Write-Host "Output: ${{ steps.install-vsix.outputs.logsPathMatch }}
+
+    - name: Capture logs
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: VSIXInstaller-Logs
+        path: ${{ steps.install-vsix.outputs.logsPathMatch }}
+
+  multilingual-app-toolkit:
+    name: Install Multilingual Application Toolkit extension
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2.0.0
+
+    - name: Test installing multilingual app toolkit extension
+      id: install-vsix
+      uses: ./
+      with:
+        packageName: 'dts-publisher.mat2022'
+        verboseLogOutput: true
+
+    - name: Capture logs
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: VSIXInstaller-Logs
+        path: ${{ steps.install-vsix.outputs.logsPathMatch }}
+
+    - name: Confirm output of logs directory match string
+      if: always()
+      run: |
+        Write-Host "GitHub action returned output: ${{ steps.install-vsix.outputs.logsPathMatch }}"
